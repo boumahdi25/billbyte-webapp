@@ -1,0 +1,17 @@
+{
+  "name": "billbyte-bot",
+  "version": "1.0.0",
+  "description": "Telegram Bot for BillByte",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.61.0",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
