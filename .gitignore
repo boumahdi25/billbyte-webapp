@@ -1,1 +1,16 @@
-.env
+# Fichiers sensibles
+bot.py
+config.py
+*.env
+.env.local
+*.pickle
+__pycache__/
+
+# Fichiers système
+.DS_Store
+*.log
+*.secret
+
+# Fichiers d'environnement
+venv/
+env/

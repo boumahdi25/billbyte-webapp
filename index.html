@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BillByte ($BBY)</title>
+  <title>BillByte ($BBY) - Language Enabled</title>
   <style>
     * {
       margin: 0;
@@ -63,6 +63,7 @@
       padding: 15px 20px 10px;
       text-align: center;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
     }
 
     .logo {
@@ -106,11 +107,81 @@
       color: #00e676;
       font-weight: 600;
     }
+    
+    /* Language Selector Styles */
+    .lang-selector {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      z-index: 10;
+    }
+    
+    .lang-btn {
+      background: rgba(0, 100, 200, 0.2);
+      border: 1px solid rgba(0, 200, 83, 0.3);
+      color: #aaffaa;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    
+    .lang-btn:hover {
+      background: rgba(0, 200, 83, 0.2);
+      box-shadow: 0 0 8px rgba(0, 200, 83, 0.3);
+    }
+    
+    .lang-btn i {
+      font-size: 0.9rem;
+    }
+    
+    .lang-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 160px;
+      background: rgba(10, 20, 35, 0.95);
+      border: 1px solid rgba(0, 200, 83, 0.3);
+      border-radius: 10px;
+      margin-top: 8px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      display: none;
+    }
+    
+    .lang-dropdown.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .lang-option {
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .lang-option:hover {
+      background: rgba(0, 200, 83, 0.15);
+    }
+    
+    .lang-option.active {
+      background: rgba(0, 200, 83, 0.1);
+      border-left: 3px solid #00e676;
+    }
 
     .tab-content {
       flex: 1;
       overflow-y: auto;
       padding: 15px 20px;
+      height: calc(100% - 60px);
     }
 
     .tab-pane {
@@ -188,7 +259,8 @@
       font-weight: 600;
     }
 
-    .info-text {
+    /* Scrollable content styles */
+    .scrollable-info {
       background: rgba(255, 255, 255, 0.05);
       margin: 10px 0;
       padding: 15px;
@@ -196,9 +268,31 @@
       font-size: 0.95rem;
       text-align: left;
       line-height: 1.5;
-      max-height: 5cm;
+      max-height: 200px;
       overflow-y: auto;
       border: 1px solid rgba(0, 200, 83, 0.2);
+    }
+
+    .scrollable-info::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .scrollable-info::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .scrollable-info::-webkit-scrollbar-thumb {
+      background: #00e676;
+      border-radius: 3px;
+    }
+
+    .info-text {
+      display: none;
+    }
+
+    .info-text.open {
+      display: block;
+      animation: fadeInUp 0.4s ease forwards;
     }
     
     .info-text p {
@@ -278,6 +372,9 @@
       display: flex;
       background: rgba(15, 30, 45, 0.9);
       border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
     }
     
     .tab-button {
@@ -405,6 +502,33 @@
       100% { transform: scale(1); }
     }
     
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 200, 83, 0.9);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
     @media (max-width: 480px) {
       .container {
         height: 100vh;
@@ -446,6 +570,20 @@
         font-size: 0.8rem;
         padding: 10px 3px;
       }
+      
+      .lang-selector {
+        top: 10px;
+        right: 15px;
+      }
+      
+      .lang-btn {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+      }
+      
+      .lang-dropdown {
+        width: 140px;
+      }
     }
   </style>
 </head>
@@ -456,40 +594,67 @@
       <h1>BillByte ($BBY)</h1>
       <p class="subtitle">The Coin That Connects Paper and Digital Wealth</p>
       <div class="counter">
-        <span>Supporters: </span><span id="supporters">124</span>
+        <span class="i18n" data-key="supportersText">Supporters: </span><span id="supporters">124</span>
+      </div>
+      
+      <!-- Language Selector -->
+      <div class="lang-selector">
+        <div class="lang-btn" id="langBtn">
+          <i>🌐</i> English
+        </div>
+        <div class="lang-dropdown" id="langDropdown">
+          <div class="lang-option" data-lang="en">
+            <i>🇬🇧</i> English
+          </div>
+          <div class="lang-option" data-lang="fr">
+            <i>🇫🇷</i> Français
+          </div>
+          <div class="lang-option" data-lang="es">
+            <i>🇪🇸</i> Español
+          </div>
+          <div class="lang-option" data-lang="ar">
+            <i>🇸🇦</i> العربية
+          </div>
+          <div class="lang-option" data-lang="de">
+            <i>🇩🇪</i> Deutsch
+          </div>
+          <div class="lang-option" data-lang="zh">
+            <i>🇨🇳</i> 中文
+          </div>
+        </div>
       </div>
     </div>
     
     <div class="tab-content">
-      <!-- Onglet Accueil -->
+      <!-- Home Tab -->
       <div id="home-tab" class="tab-pane active">
         <div class="buttons">
           <button id="aboutBtn">
-            <i>ℹ️</i> About BillByte ($BBY)
+            <i>ℹ️</i> <span class="i18n" data-key="aboutBtn">About BillByte ($BBY)</span>
           </button>
           
           <div id="aboutText" class="info-text">
-            <p><strong>BillByte ($BBY)</strong> est un projet crypto unique qui unit le <strong>billet d'argent</strong> (bill) et le <strong>byte</strong> (unité numérique).</p>
-            <p>Il reconnecte la <em>valeur perçue du cash</em> à la <em>puissance du numérique</em>, pour créer une monnaie décentralisée, simple et communautaire.</p>
-            <p><strong>Objectif :</strong> Fusionner la richesse physique et digitale dans un même écosystème fluide et accessible à tous.</p>
+            <p><strong>BillByte ($BBY)</strong> <span class="i18n" data-key="about1">est un projet crypto unique qui unit le <strong>billet d'argent</strong> (bill) et le <strong>byte</strong> (unité numérique).</span></p>
+            <p><span class="i18n" data-key="about2">Il reconnecte la <em>valeur perçue du cash</em> à la <em>puissance du numérique</em>, pour créer une monnaie décentralisée, simple et communautaire.</span></p>
+            <p><strong class="i18n" data-key="goal">Objectif :</strong> <span class="i18n" data-key="about3">Fusionner la richesse physique et digitale dans un même écosystème fluide et accessible à tous.</span></p>
           </div>
           
           <button id="expectationBtn">
-            <i>🔮</i> Expectation
+            <i>🔮</i> <span class="i18n" data-key="expectationBtn">Expectation</span>
           </button>
           
           <div id="expectationText" class="info-text">
-            <p><strong>🌍 Vision Globale :</strong> BillByte ($BBY) aspire à connecter les individus du monde entier à une richesse numérique accessible, tout en respectant la valeur symbolique du cash physique.</p>
-            <p><strong>🤝 Communauté :</strong> Ce projet est communautaire par essence. Les décisions majeures seront guidées par les détenteurs de $BBY — pas par une élite centralisée.</p>
-            <p><strong>🚀 Avenir DeFi :</strong> BillByte se prépare à intégrer des écosystèmes décentralisés, des mini-apps Web3 et des ponts entre blockchains pour une adoption massive et fluide.</p>
+            <p><strong>🌍 <span class="i18n" data-key="vision">Vision Globale :</span></strong> <span class="i18n" data-key="visionText">BillByte ($BBY) aspire à connecter les individus du monde entier à une richesse numérique accessible, tout en respectant la valeur symbolique du cash physique.</span></p>
+            <p><strong>🤝 <span class="i18n" data-key="community">Communauté :</span></strong> <span class="i18n" data-key="communityText">Ce projet est communautaire par essence. Les décisions majeures seront guidées par les détenteurs de $BBY — pas par une élite centralisée.</span></p>
+            <p><strong>🚀 <span class="i18n" data-key="future">Avenir DeFi :</span></strong> <span class="i18n" data-key="futureText">BillByte se prépare à intégrer des écosystèmes décentralisés, des mini-apps Web3 et des ponts entre blockchains pour une adoption massive et fluide.</span></p>
           </div>
           
           <button id="supportBtn">
-            <i>🤝</i> Support the Project
+            <i>🤝</i> <span class="i18n" data-key="supportBtn">Support the Project</span>
           </button>
           
           <button id="telegramButton">
-            <i>📩</i> Join Us on Telegram
+            <i>📩</i> <span class="i18n" data-key="telegramBtn">Join Us on Telegram</span>
           </button>
         </div>
         
@@ -497,198 +662,740 @@
           <div class="hash-bar">
             <div class="hash-fill" id="hashFill"></div>
           </div>
-          <p class="hash-text">🧬 Mining BBY... AI hash rate: Matrix Stable</p>
-          <p class="hash-subtext">Fueled by belief, not electricity.</p>
+          <p class="hash-text">🧬 <span class="i18n" data-key="miningText">Mining BBY... AI hash rate: Matrix Stable</span></p>
+          <p class="hash-subtext"><span class="i18n" data-key="fuelText">Fueled by belief, not electricity.</span></p>
         </div>
       </div>
       
-      <!-- Onglet Soutien -->
+      <!-- Support Tab -->
       <div id="support-tab" class="tab-pane">
-        <div class="info-text">
-          <h3>Devenez un supporter officiel</h3>
-          <p>En soutenant BillByte, vous contribuez à la création d'un écosystème financier révolutionnaire qui fusionne le physique et le numérique.</p>
-          <p>Votre soutien nous permet de développer des solutions innovantes et accessibles à tous.</p>
+        <div class="scrollable-info">
+          <h3 class="i18n" data-key="becomeSupporter">Devenez un supporter officiel</h3>
+          <p class="i18n" data-key="supportText1">By supporting BillByte, you contribute to creating a revolutionary financial ecosystem that merges physical and digital.</p>
+          <p class="i18n" data-key="supportText2">Your support allows us to develop innovative solutions accessible to all.</p>
         </div>
         
-        <div class="support-levels">
-          <div class="vote-option">
-            <h3>🥉 Supporter Bronze</h3>
-            <p>Accès précoce aux fonctionnalités</p>
-            <p>Badge numérique dans la communauté</p>
-            <div class="vote-progress">
-              <div class="vote-progress-fill" style="width: 65%"></div>
+        <div class="scrollable-info">
+          <div class="support-levels">
+            <div class="vote-option">
+              <h3>🥉 <span class="i18n" data-key="bronze">Supporter Bronze</span></h3>
+              <p class="i18n" data-key="bronzeBenefit1">Accès précoce aux fonctionnalités</p>
+              <p class="i18n" data-key="bronzeBenefit2">Badge numérique dans la communauté</p>
+              <div class="vote-progress">
+                <div class="vote-progress-fill" style="width: 65%"></div>
+              </div>
             </div>
-          </div>
-          
-          <div class="vote-option">
-            <h3>🥈 Supporter Argent</h3>
-            <p>Tous les avantages Bronze</p>
-            <p>Accès VIP aux événements</p>
-            <p>Vote prioritaire sur les décisions</p>
-            <div class="vote-progress">
-              <div class="vote-progress-fill" style="width: 35%"></div>
+            
+            <div class="vote-option">
+              <h3>🥈 <span class="i18n" data-key="silver">Supporter Argent</span></h3>
+              <p class="i18n" data-key="silverBenefit1">Tous les avantages Bronze</p>
+              <p class="i18n" data-key="silverBenefit2">Accès VIP aux événements</p>
+              <p class="i18n" data-key="silverBenefit3">Vote prioritaire sur les décisions</p>
+              <div class="vote-progress">
+                <div class="vote-progress-fill" style="width: 35%"></div>
+              </div>
             </div>
-          </div>
-          
-          <div class="vote-option">
-            <h3>🥇 Supporter Or</h3>
-            <p>Tous les avantages Argent</p>
-            <p>Accès aux développeurs principaux</p>
-            <p>Participation aux bêta privées</p>
-            <div class="vote-progress">
-              <div class="vote-progress-fill" style="width: 15%"></div>
+            
+            <div class="vote-option">
+              <h3>🥇 <span class="i18n" data-key="gold">Supporter Or</span></h3>
+              <p class="i18n" data-key="goldBenefit1">Tous les avantages Argent</p>
+              <p class="i18n" data-key="goldBenefit2">Accès aux développeurs principaux</p>
+              <p class="i18n" data-key="goldBenefit3">Participation aux bêta privées</p>
+              <div class="vote-progress">
+                <div class="vote-progress-fill" style="width: 15%"></div>
+              </div>
             </div>
           </div>
         </div>
         
         <button class="btn btn-success" style="width: 100%; padding: 15px; margin-top: 15px;">
-          <i>🤝</i> Soutenir Maintenant
+          <i>🤝</i> <span class="i18n" data-key="supportNow">Soutenir Maintenant</span>
         </button>
       </div>
       
-      <!-- Onglet Roadmap -->
+      <!-- Roadmap Tab -->
       <div id="roadmap-tab" class="tab-pane">
-        <div class="info-text">
-          <h3>Notre Feuille de Route</h3>
-          <p>Découvrez l'évolution prévue de BillByte et les prochaines étapes de notre développement.</p>
+        <div class="scrollable-info">
+          <h3 class="i18n" data-key="ourRoadmap">Notre Feuille de Route</h3>
+          <p class="i18n" data-key="roadmapDesc">Découvrez l'évolution prévue de BillByte et les prochaines étapes de notre développement.</p>
         </div>
         
-        <div class="roadmap-item completed">
-          <h3><i>✅</i> Phase 1: Conception (Terminée)</h3>
-          <p>Développement du concept fondamental et création de la communauté initiale.</p>
-        </div>
-        
-        <div class="roadmap-item completed">
-          <h3><i>✅</i> Phase 2: Prototype (Terminée)</h3>
-          <p>Création du premier portefeuille et mise en place du mécanisme de minage.</p>
-        </div>
-        
-        <div class="roadmap-item">
-          <h3><i>🔄</i> Phase 3: Lancement (En cours)</h3>
-          <p>Lancement de la version alpha et intégration avec Telegram.</p>
-        </div>
-        
-        <div class="roadmap-item future">
-          <h3><i>⏱️</i> Phase 4: Écosystème</h3>
-          <p>Développement des ponts avec les blockchains existantes et création des premiers cas d'usage.</p>
-        </div>
-        
-        <div class="roadmap-item future">
-          <h3><i>⏱️</i> Phase 5: Expansion mondiale</h3>
-          <p>Déploiement international et intégration avec les systèmes financiers traditionnels.</p>
+        <div class="scrollable-info">
+          <div class="roadmap-item completed">
+            <h3><i>✅</i> <span class="i18n" data-key="phase1">Phase 1: Conception (Terminée)</span></h3>
+            <p class="i18n" data-key="phase1Desc">Développement du concept fondamental et création de la communauté initiale.</p>
+          </div>
+          
+          <div class="roadmap-item completed">
+            <h3><i>✅</i> <span class="i18n" data-key="phase2">Phase 2: Prototype (Terminée)</span></h3>
+            <p class="i18n" data-key="phase2Desc">Création du premier portefeuille et mise en place du mécanisme de minage.</p>
+          </div>
+          
+          <div class="roadmap-item">
+            <h3><i>🔄</i> <span class="i18n" data-key="phase3">Phase 3: Lancement (En cours)</span></h3>
+            <p class="i18n" data-key="phase3Desc">Lancement de la version alpha et intégration avec Telegram.</p>
+          </div>
+          
+          <div class="roadmap-item future">
+            <h3><i>⏱️</i> <span class="i18n" data-key="phase4">Phase 4: Écosystème</span></h3>
+            <p class="i18n" data-key="phase4Desc">Développement des ponts avec les blockchains existantes et création des premiers cas d'usage.</p>
+          </div>
+          
+          <div class="roadmap-item future">
+            <h3><i>⏱️</i> <span class="i18n" data-key="phase5">Phase 5: Expansion mondiale</span></h3>
+            <p class="i18n" data-key="phase5Desc">Déploiement international et intégration avec les systèmes financiers traditionnels.</p>
+          </div>
         </div>
       </div>
       
-      <!-- Onglet Vote -->
+      <!-- Vote Tab -->
       <div id="vote-tab" class="tab-pane">
-        <div class="info-text">
-          <h3>Vote Communautaire</h3>
-          <p>En tant que membre de la communauté BillByte, votre voix compte! Participez aux décisions qui façonneront l'avenir de notre écosystème.</p>
+        <div class="scrollable-info">
+          <h3 class="i18n" data-key="communityVote">Vote Communautaire</h3>
+          <p class="i18n" data-key="voteDesc">En tant que membre de la communauté BillByte, votre voix compte! Participez aux décisions qui façonneront l'avenir de notre écosystème.</p>
         </div>
         
-        <h3 style="margin: 15px 0 10px;">Propositions Actives</h3>
-        
-        <div class="vote-option">
-          <h3>Intégration Binance Smart Chain</h3>
-          <p>Devrions-nous créer un pont vers BSC pour faciliter les échanges?</p>
-          <div class="vote-progress">
-            <div class="vote-progress-fill" style="width: 78%"></div>
+        <div class="scrollable-info">
+          <h3 style="margin: 15px 0 10px;"><span class="i18n" data-key="activeProposals">Propositions Actives</span></h3>
+          
+          <div class="vote-option">
+            <h3 class="i18n" data-key="proposal1">Intégration Binance Smart Chain</h3>
+            <p class="i18n" data-key="proposal1Desc">Devrions-nous créer un pont vers BSC pour faciliter les échanges?</p>
+            <div class="vote-progress">
+              <div class="vote-progress-fill" style="width: 78%"></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <button style="flex:1; padding: 8px; background: rgba(0,200,83,0.3); border: none; border-radius: 5px; color: white;" class="i18n" data-key="forBtn">Pour</button>
+              <button style="flex:1; padding: 8px; background: rgba(231,76,60,0.3); border: none; border-radius: 5px; color: white;" class="i18n" data-key="againstBtn">Contre</button>
+            </div>
           </div>
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button style="flex:1; padding: 8px; background: rgba(0,200,83,0.3); border: none; border-radius: 5px; color: white;">Pour</button>
-            <button style="flex:1; padding: 8px; background: rgba(231,76,60,0.3); border: none; border-radius: 5px; color: white;">Contre</button>
+          
+          <div class="vote-option">
+            <h3 class="i18n" data-key="proposal2">Programme de récompenses</h3>
+            <p class="i18n" data-key="proposal2Desc">Création d'un système de récompenses pour les supporters actifs.</p>
+            <div class="vote-progress">
+              <div class="vote-progress-fill" style="width: 52%"></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <button style="flex:1; padding: 8px; background: rgba(0,200,83,0.3); border: none; border-radius: 5px; color: white;" class="i18n" data-key="forBtn">Pour</button>
+              <button style="flex:1; padding: 8px; background: rgba(231,76,60,0.3); border: none; border-radius: 5px; color: white;" class="i18n" data-key="againstBtn">Contre</button>
+            </div>
           </div>
-        </div>
-        
-        <div class="vote-option">
-          <h3>Programme de récompenses</h3>
-          <p>Création d'un système de récompenses pour les supporters actifs.</p>
-          <div class="vote-progress">
-            <div class="vote-progress-fill" style="width: 52%"></div>
-          </div>
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button style="flex:1; padding: 8px; background: rgba(0,200,83,0.3); border: none; border-radius: 5px; color: white;">Pour</button>
-            <button style="flex:1; padding: 8px; background: rgba(231,76,60,0.3); border: none; border-radius: 5px; color: white;">Contre</button>
-          </div>
-        </div>
-        
-        <div class="vote-option">
-          <h3>Nouveau design d'interface</h3>
-          <p>Adopter la nouvelle interface proposée par notre équipe de design.</p>
-          <div class="vote-progress">
-            <div class="vote-progress-fill" style="width: 65%"></div>
-          </div>
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button style="flex:1; padding: 8px; background: rgba(0,200,83,0.3); border: none; border-radius: 5px; color: white;">Pour</button>
-            <button style="flex:1; padding: 8px; background: rgba(231,76,60,0.3); border: none; border-radius: 5px; color: white;">Contre</button>
+          
+          <div class="vote-option">
+            <h3 class="i18n" data-key="proposal3">Nouveau design d'interface</h3>
+            <p class="i18n" data-key="proposal3Desc">Adopter la nouvelle interface proposée par notre équipe de design.</p>
+            <div class="vote-progress">
+              <div class="vote-progress-fill" style="width: 65%"></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <button style="flex:1; padding: 8px; background: rgba(0,200,83,0.3); border: none; border-radius: 5px; color: white;" class="i18n" data-key="forBtn">Pour</button>
+              <button style="flex:1; padding: 8px; background: rgba(231,76,60,0.3); border: none; border-radius: 5px; color: white;" class="i18n" data-key="againstBtn">Contre</button>
+            </div>
           </div>
         </div>
       </div>
       
-      <!-- Onglet Inscription -->
+      <!-- Register Tab -->
       <div id="register-tab" class="tab-pane">
-        <div class="info-text">
-          <h3>Rejoignez la Communauté BillByte</h3>
-          <p>Inscrivez-vous pour devenir un membre officiel et participer au développement de notre écosystème.</p>
+        <div class="scrollable-info">
+          <h3 class="i18n" data-key="joinCommunity">Rejoignez la Communauté BillByte</h3>
+          <p class="i18n" data-key="registerDesc">Inscrivez-vous pour devenir un membre officiel et participer au développement de notre écosystème.</p>
         </div>
         
-        <div class="form-group">
-          <label for="username">Nom d'utilisateur</label>
-          <input type="text" id="username" placeholder="Votre pseudonyme">
+        <div class="scrollable-info">
+          <div class="form-group">
+            <label for="username" class="i18n" data-key="usernameLabel">Nom d'utilisateur</label>
+            <input type="text" id="username" placeholder="" data-placeholder-key="usernamePlaceholder">
+          </div>
+          
+          <div class="form-group">
+            <label for="email" class="i18n" data-key="emailLabel">Email</label>
+            <input type="email" id="email" placeholder="" data-placeholder-key="emailPlaceholder">
+          </div>
+          
+          <div class="form-group">
+            <label for="telegram" class="i18n" data-key="telegramLabel">ID Telegram</label>
+            <input type="text" id="telegram" placeholder="" data-placeholder-key="telegramPlaceholder">
+          </div>
+          
+          <div class="form-group">
+            <label for="role" class="i18n" data-key="roleLabel">Rôle préféré</label>
+            <select id="role">
+              <option value="" class="i18n" data-key="selectRole">Sélectionnez votre rôle</option>
+              <option value="supporter" class="i18n" data-key="supporterRole">Supporter</option>
+              <option value="developer" class="i18n" data-key="developerRole">Développeur</option>
+              <option value="ambassador" class="i18n" data-key="ambassadorRole">Ambassadeur</option>
+              <option value="investor" class="i18n" data-key="investorRole">Investisseur</option>
+            </select>
+          </div>
+          
+          <button class="btn btn-success" style="width: 100%; padding: 15px; margin-top: 10px;">
+            <i>🚀</i> <span class="i18n" data-key="registerNow">S'inscrire Maintenant</span>
+          </button>
         </div>
-        
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="votre@email.com">
-        </div>
-        
-        <div class="form-group">
-          <label for="telegram">ID Telegram</label>
-          <input type="text" id="telegram" placeholder="@votreID">
-        </div>
-        
-        <div class="form-group">
-          <label for="role">Rôle préféré</label>
-          <select id="role">
-            <option value="">Sélectionnez votre rôle</option>
-            <option value="supporter">Supporter</option>
-            <option value="developer">Développeur</option>
-            <option value="ambassador">Ambassadeur</option>
-            <option value="investor">Investisseur</option>
-          </select>
-        </div>
-        
-        <button class="btn btn-success" style="width: 100%; padding: 15px; margin-top: 10px;">
-          <i>🚀</i> S'inscrire Maintenant
-        </button>
       </div>
     </div>
     
-    <!-- Navigation par onglets -->
+    <!-- Tab Navigation -->
     <div class="tab-navigation">
       <button class="tab-button active" data-tab="home-tab">
-        <i>🏠</i> Accueil
+        <i>🏠</i> <span class="i18n" data-key="homeTab">Accueil</span>
       </button>
-      <button class="tab-button" data-tab="support-tab">
-        <i>✅</i> Soutien
+    <button class="tab-button" data-tab="support-tab">
+        <i>✅</i> <span class="i18n" data-key="supportTab">Soutien</span>
       </button>
       <button class="tab-button" data-tab="roadmap-tab">
-        <i>🗺️</i> Roadmap
+        <i>🗺️</i> <span class="i18n" data-key="roadmapTab">Roadmap</span>
       </button>
       <button class="tab-button" data-tab="vote-tab">
-        <i>🗳️</i> Vote
+        <i>🗳️</i> <span class="i18n" data-key="voteTab">Vote</span>
       </button>
       <button class="tab-button" data-tab="register-tab">
-        <i>👤</i> Inscription
+        <i>👤</i> <span class="i18n" data-key="registerTab">Inscription</span>
       </button>
     </div>
   </div>
 
   <script>
+    // Language files simulation (would normally be separate .json files)
+    const translations = {
+      en: {
+        aboutBtn: "About BillByte ($BBY)",
+        about1: "is a unique crypto project that unites paper money (bill) and bytes (digital unit).",
+        about2: "It reconnects the perceived value of cash with the power of digital to create a decentralized, simple and community-driven currency.",
+        goal: "Goal:",
+        about3: "Merge physical and digital wealth in a fluid ecosystem accessible to all.",
+        expectationBtn: "Expectation",
+        vision: "Global Vision:",
+        visionText: "BillByte ($BBY) aspires to connect people worldwide to accessible digital wealth while respecting the symbolic value of physical cash.",
+        community: "Community:",
+        communityText: "This project is community-driven at its core. Major decisions will be guided by $BBY holders—not by a centralized elite.",
+        future: "DeFi Future:",
+        futureText: "BillByte is preparing to integrate with decentralized ecosystems, Web3 mini-apps, and blockchain bridges for massive and fluid adoption.",
+        supportBtn: "Support the Project",
+        telegramBtn: "Join Us on Telegram",
+        miningText: "Mining BBY... AI hash rate: Matrix Stable",
+        fuelText: "Fueled by belief, not electricity.",
+        becomeSupporter: "Become an official supporter",
+        supportText1: "By supporting BillByte, you contribute to creating a revolutionary financial ecosystem that merges physical and digital.",
+        supportText2: "Your support allows us to develop innovative solutions accessible to all.",
+        bronze: "Bronze Supporter",
+        bronzeBenefit1: "Early access to features",
+        bronzeBenefit2: "Digital badge in the community",
+        silver: "Silver Supporter",
+        silverBenefit1: "All Bronze benefits",
+        silverBenefit2: "VIP access to events",
+        silverBenefit3: "Priority voting on decisions",
+        gold: "Gold Supporter",
+        goldBenefit1: "All Silver benefits",
+        goldBenefit2: "Access to core developers",
+        goldBenefit3: "Participation in private betas",
+        supportNow: "Support Now",
+        ourRoadmap: "Our Roadmap",
+        roadmapDesc: "Discover the planned evolution of BillByte and the next steps in our development.",
+        phase1: "Phase 1: Conception (Completed)",
+        phase1Desc: "Development of the fundamental concept and creation of the initial community.",
+        phase2: "Phase 2: Prototype (Completed)",
+        phase2Desc: "Creation of the first wallet and implementation of the mining mechanism.",
+        phase3: "Phase 3: Launch (In Progress)",
+        phase3Desc: "Alpha version launch and integration with Telegram.",
+        phase4: "Phase 4: Ecosystem",
+        phase4Desc: "Development of bridges with existing blockchains and creation of first use cases.",
+        phase5: "Phase 5: Global Expansion",
+        phase5Desc: "International deployment and integration with traditional financial systems.",
+        communityVote: "Community Vote",
+        voteDesc: "As a member of the BillByte community, your voice matters! Participate in decisions that will shape the future of our ecosystem.",
+        activeProposals: "Active Proposals",
+        proposal1: "Binance Smart Chain Integration",
+        proposal1Desc: "Should we create a bridge to BSC to facilitate exchanges?",
+        proposal2: "Rewards Program",
+        proposal2Desc: "Creation of a rewards system for active supporters.",
+        proposal3: "New Interface Design",
+        proposal3Desc: "Adopt the new interface proposed by our design team.",
+        forBtn: "For",
+        againstBtn: "Against",
+        joinCommunity: "Join the BillByte Community",
+        registerDesc: "Register to become an official member and participate in the development of our ecosystem.",
+        usernameLabel: "Username",
+        usernamePlaceholder: "Your nickname",
+        emailLabel: "Email",
+        emailPlaceholder: "your@email.com",
+        telegramLabel: "Telegram ID",
+        telegramPlaceholder: "@yourID",
+        roleLabel: "Preferred Role",
+        selectRole: "Select your role",
+        supporterRole: "Supporter",
+        developerRole: "Developer",
+        ambassadorRole: "Ambassador",
+        investorRole: "Investor",
+        registerNow: "Register Now",
+        homeTab: "Home",
+        supportTab: "Support",
+        roadmapTab: "Roadmap",
+        voteTab: "Vote",
+        registerTab: "Registration"
+      },
+      fr: {
+        aboutBtn: "À propos de BillByte ($BBY)",
+        about1: "est un projet crypto unique qui unit le billet d'argent (bill) et le byte (unité numérique).",
+        about2: "Il reconnecte la valeur perçue du cash à la puissance du numérique, pour créer une monnaie décentralisée, simple et communautaire.",
+        goal: "Objectif :",
+        about3: "Fusionner la richesse physique et digitale dans un même écosystème fluide et accessible à tous.",
+        expectationBtn: "Perspectives",
+        vision: "Vision Globale :",
+        visionText: "BillByte ($BBY) aspire à connecter les individus du monde entier à une richesse numérique accessible, tout en respectant la valeur symbolique du cash physique.",
+        community: "Communauté :",
+        communityText: "Ce projet est communautaire par essence. Les décisions majeures seront guidées par les détenteurs de $BBY — pas par une élite centralisée.",
+        future: "Avenir DeFi :",
+        futureText: "BillByte se prépare à intégrer des écosystèmes décentralisés, des mini-apps Web3 et des ponts entre blockchains pour une adoption massive et fluide.",
+        supportBtn: "Soutenir le projet",
+        telegramBtn: "Rejoignez-nous sur Telegram",
+        miningText: "Minage BBY... Taux de hachage IA : Matrice Stable",
+        fuelText: "Alimenté par la croyance, pas par l'électricité.",
+        becomeSupporter: "Devenez un supporter officiel",
+        supportText1: "En soutenant BillByte, vous contribuez à la création d'un écosystème financier révolutionnaire qui fusionne le physique et le numérique.",
+        supportText2: "Votre soutien nous permet de développer des solutions innovantes et accessibles à tous.",
+        bronze: "Supporter Bronze",
+        bronzeBenefit1: "Accès précoce aux fonctionnalités",
+        bronzeBenefit2: "Badge numérique dans la communauté",
+        silver: "Supporter Argent",
+        silverBenefit1: "Tous les avantages Bronze",
+        silverBenefit2: "Accès VIP aux événements",
+        silverBenefit3: "Vote prioritaire sur les décisions",
+        gold: "Supporter Or",
+        goldBenefit1: "Tous les avantages Argent",
+        goldBenefit2: "Accès aux développeurs principaux",
+        goldBenefit3: "Participation aux bêta privées",
+        supportNow: "Soutenir Maintenant",
+        ourRoadmap: "Notre Feuille de Route",
+        roadmapDesc: "Découvrez l'évolution prévue de BillByte et les prochaines étapes de notre développement.",
+        phase1: "Phase 1: Conception (Terminée)",
+        phase1Desc: "Développement du concept fondamental et création de la communauté initiale.",
+        phase2: "Phase 2: Prototype (Terminée)",
+        phase2Desc: "Création du premier portefeuille et mise en place du mécanisme de minage.",
+        phase3: "Phase 3: Lancement (En cours)",
+        phase3Desc: "Lancement de la version alpha et intégration avec Telegram.",
+        phase4: "Phase 4: Écosystème",
+        phase4Desc: "Développement des ponts avec les blockchains existantes et création des premiers cas d'usage.",
+        phase5: "Phase 5: Expansion mondiale",
+        phase5Desc: "Déploiement international et intégration avec les systèmes financiers traditionnels.",
+        communityVote: "Vote Communautaire",
+        voteDesc: "En tant que membre de la communauté BillByte, votre voix compte! Participez aux décisions qui façonneront l'avenir de notre écosystème.",
+        activeProposals: "Propositions Actives",
+        proposal1: "Intégration Binance Smart Chain",
+        proposal1Desc: "Devrions-nous créer un pont vers BSC pour faciliter les échanges?",
+        proposal2: "Programme de récompenses",
+        proposal2Desc: "Création d'un système de récompenses pour les supporters actifs.",
+        proposal3: "Nouveau design d'interface",
+        proposal3Desc: "Adopter la nouvelle interface proposée par notre équipe de design.",
+        forBtn: "Pour",
+        againstBtn: "Contre",
+        joinCommunity: "Rejoignez la Communauté BillByte",
+        registerDesc: "Inscrivez-vous pour devenir un membre officiel et participer au développement de notre écosystème.",
+        usernameLabel: "Nom d'utilisateur",
+        usernamePlaceholder: "Votre pseudonyme",
+        emailLabel: "Email",
+        emailPlaceholder: "votre@email.com",
+        telegramLabel: "ID Telegram",
+        telegramPlaceholder: "@votreID",
+        roleLabel: "Rôle préféré",
+        selectRole: "Sélectionnez votre rôle",
+        supporterRole: "Supporter",
+        developerRole: "Développeur",
+        ambassadorRole: "Ambassadeur",
+        investorRole: "Investisseur",
+        registerNow: "S'inscrire Maintenant",
+        homeTab: "Accueil",
+        supportTab: "Soutien",
+        roadmapTab: "Roadmap",
+        voteTab: "Vote",
+        registerTab: "Inscription"
+      },
+      es: {
+        aboutBtn: "Acerca de BillByte ($BBY)",
+        about1: "es un proyecto criptográfico único que une el billete de dinero (bill) y el byte (unidad digital).",
+        about2: "Reconecta el valor percibido del efectivo con el poder digital para crear una moneda descentralizada, simple y comunitaria.",
+        goal: "Objetivo:",
+        about3: "Fusionar la riqueza física y digital en un ecosistema fluido y accesible para todos.",
+        expectationBtn: "Expectativas",
+        vision: "Visión Global:",
+        visionText: "BillByte ($BBY) aspira a conectar a personas de todo el mundo con la riqueza digital accesible, respetando el valor simbólico del efectivo físico.",
+        community: "Comunidad:",
+        communityText: "Este proyecto es comunitario en esencia. Las decisiones importantes serán guiadas por los titulares de $BBY, no por una élite centralizada.",
+        future: "Futuro DeFi:",
+        futureText: "BillByte se prepara para integrarse con ecosistemas descentralizados, mini-aplicaciones Web3 y puentes blockchain para una adopción masiva y fluida.",
+        supportBtn: "Apoyar el Proyecto",
+        telegramBtn: "Únete a nosotros en Telegram",
+        miningText: "Minando BBY... Tasa de hash de IA: Matriz Estable",
+        fuelText: "Impulsado por la creencia, no por la electricidad.",
+        becomeSupporter: "Conviértete en un partidario oficial",
+        supportText1: "Al apoyar a BillByte, contribuyes a crear un ecosistema financiero revolucionario que fusiona lo físico y lo digital.",
+        supportText2: "Tu apoyo nos permite desarrollar soluciones innovadoras accesibles para todos.",
+        bronze: "Partidario Bronce",
+        bronzeBenefit1: "Acceso temprano a funciones",
+        bronzeBenefit2: "Insignia digital en la comunidad",
+        silver: "Partidario Plata",
+        silverBenefit1: "Todos los beneficios Bronce",
+        silverBenefit2: "Acceso VIP a eventos",
+        silverBenefit3: "Voto prioritario en decisiones",
+        gold: "Partidario Oro",
+        goldBenefit1: "Todos los beneficios Plata",
+        goldBenefit2: "Acceso a desarrolladores principales",
+        goldBenefit3: "Participación en betas privadas",
+        supportNow: "Apoyar Ahora",
+        ourRoadmap: "Nuestra Hoja de Ruta",
+        roadmapDesc: "Descubre la evolución planificada de BillByte y los próximos pasos en nuestro desarrollo.",
+        phase1: "Fase 1: Concepción (Completada)",
+        phase1Desc: "Desarrollo del concepto fundamental y creación de la comunidad inicial.",
+        phase2: "Fase 2: Prototipo (Completada)",
+        phase2Desc: "Creación de la primera billetera e implementación del mecanismo de minería.",
+        phase3: "Fase 3: Lanzamiento (En curso)",
+        phase3Desc: "Lanzamiento de la versión alfa e integración con Telegram.",
+        phase4: "Fase 4: Ecosistema",
+        phase4Desc: "Desarrollo de puentes con blockchains existentes y creación de primeros casos de uso.",
+        phase5: "Fase 5: Expansión Global",
+        phase5Desc: "Despliegue internacional e integración con sistemas financieros tradicionales.",
+        communityVote: "Voto Comunitario",
+        voteDesc: "¡Como miembro de la comunidad BillByte, tu voz importa! Participa en decisiones que darán forma al futuro de nuestro ecosistema.",
+        activeProposals: "Propuestas Activas",
+        proposal1: "Integración de Binance Smart Chain",
+        proposal1Desc: "¿Deberíamos crear un puente a BSC para facilitar los intercambios?",
+        proposal2: "Programa de recompensas",
+        proposal2Desc: "Creación de un sistema de recompensas para partidarios activos.",
+        proposal3: "Nuevo diseño de interfaz",
+        proposal3Desc: "Adoptar la nueva interfaz propuesta por nuestro equipo de diseño.",
+        forBtn: "A Favor",
+        againstBtn: "En Contra",
+        joinCommunity: "Únete a la Comunidad BillByte",
+        registerDesc: "Regístrate para convertirte en miembro oficial y participar en el desarrollo de nuestro ecosistema.",
+        usernameLabel: "Nombre de usuario",
+        usernamePlaceholder: "Tu apodo",
+        emailLabel: "Email",
+        emailPlaceholder: "tu@email.com",
+        telegramLabel: "ID de Telegram",
+        telegramPlaceholder: "@tuID",
+        roleLabel: "Rol preferido",
+        selectRole: "Selecciona tu rol",
+        supporterRole: "Partidario",
+        developerRole: "Desarrollador",
+        ambassadorRole: "Embajador",
+        investorRole: "Inversor",
+        registerNow: "Regístrate Ahora",
+        homeTab: "Inicio",
+        supportTab: "Apoyo",
+        roadmapTab: "Hoja de Ruta",
+        voteTab: "Votación",
+        registerTab: "Registro"
+      },
+      ar: {
+        aboutBtn: "حول BillByte ($BBY)",
+        about1: "هو مشروع فريد من نوعه يجمع بين الأوراق النقدية (bill) والبايت (الوحدة الرقمية).",
+        about2: "يعيد ربط القيمة المتصورة للنقد مع القوة الرقمية لإنشاء عملة لامركزية وبسيطة وقائمة على المجتمع.",
+        goal: "الهدف:",
+        about3: "دمج الثروة المادية والرقمية في نظام بيئي سلس يمكن للجميع الوصول إليه.",
+        expectationBtn: "التوقعات",
+        vision: "الرؤية العالمية:",
+        visionText: "تطمح BillByte ($BBY) إلى ربط الناس حول العالم بالثروة الرقمية المتاحة مع احترام القيمة الرمزية للنقد المادي.",
+        community: "المجتمع:",
+        communityText: "هذا المشروع قائم على المجتمع في جوهره. القرارات الرئيسية ستوجه من قبل حاملي $BBY - وليس من قبل نخبة مركزية.",
+        future: "مستقبل التمويل اللامركزي:",
+        futureText: "تستعد BillByte للاندماج مع النظم البيئية اللامركزية وتطبيقات الويب 3 الصغيرة وجسور البلوك تشين لتحقيق تبني ضخم وسلس.",
+        supportBtn: "دعم المشروع",
+        telegramBtn: "انضم إلينا على Telegram",
+        miningText: "تعدين BBY... معدل التجزئة الذكاء الاصطناعي: المصفوفة مستقرة",
+        fuelText: "مدعوم بالإيمان، وليس بالكهرباء.",
+        becomeSupporter: "كن داعمًا رسميًا",
+        supportText1: "من خلال دعم BillByte، تساهم في إنشاء نظام بيئي مالي ثوري يدمج المادي والرقمي.",
+        supportText2: "دعمك يسمح لنا بتطوير حلول مبتكرة يمكن للجميع الوصول إليها.",
+        bronze: "الداعم البرونزي",
+        bronzeBenefit1: "الوصول المبكر إلى الميزات",
+        bronzeBenefit2: "شارة رقمية في المجتمع",
+        silver: "الداعم الفضي",
+        silverBenefit1: "جميع مزايا البرونزية",
+        silverBenefit2: "وصول VIP إلى الأحداث",
+        silverBenefit3: "تصويت أولي على القرارات",
+        gold: "الداعم الذهبي",
+        goldBenefit1: "جميع مزايا الفضة",
+        goldBenefit2: "الوصول إلى المطورين الأساسيين",
+        goldBenefit3: "المشاركة في إصدارات بيتا الخاصة",
+        supportNow: "ادعم الآن",
+        ourRoadmap: "خارطة طريقنا",
+        roadmapDesc: "اكتشف التطور المخطط لـ BillByte والخطوات التالية في تطورنا.",
+        phase1: "المرحلة 1: التصميم (مكتمل)",
+        phase1Desc: "تطوير المفهوم الأساسي وإنشاء المجتمع الأولي.",
+        phase2: "المرحلة 2: النموذج الأولي (مكتمل)",
+        phase2Desc: "إنشاء المحفظة الأولى وتنفيذ آلية التعدين.",
+        phase3: "المرحلة 3: الإطلاق (قيد التنفيذ)",
+        phase3Desc: "إطلاق الإصدار ألفا والتكامل مع Telegram.",
+        phase4: "المرحلة 4: النظام البيئي",
+        phase4Desc: "تطوير الجسور مع سلاسل الكتل الحالية وإنشاء حالات الاستخدام الأولى.",
+        phase5: "المرحلة 5: التوسع العالمي",
+        phase5Desc: "النشر الدولي والتكامل مع الأنظمة المالية التقليدية.",
+        communityVote: "تصويت المجتمع",
+        voteDesc: "كعضو في مجتمع BillByte، صوتك مهم! شارك في القرارات التي ستشكل مستقبل نظامنا البيئي.",
+        activeProposals: "المقترحات النشطة",
+        proposal1: "تكامل Binance Smart Chain",
+        proposal1Desc: "هل يجب أن ننشئ جسرًا إلى BSC لتسهيل التبادلات؟",
+        proposal2: "برنامج المكافآت",
+        proposal2Desc: "إنشاء نظام مكافآت للداعمين النشطين.",
+        proposal3: "تصميم واجهة مستخدم جديد",
+        proposal3Desc: "اعتماد الواجهة الجديدة التي اقترحها فريق التصميم لدينا.",
+        forBtn: "مع",
+        againstBtn: "ضد",
+        joinCommunity: "انضم إلى مجتمع BillByte",
+        registerDesc: "سجل لتصبح عضوًا رسميًا والمشاركة في تطوير نظامنا البيئي.",
+        usernameLabel: "اسم المستخدم",
+        usernamePlaceholder: "اسمك المستعار",
+        emailLabel: "البريد الإلكتروني",
+        emailPlaceholder: "your@email.com",
+        telegramLabel: "معرف Telegram",
+        telegramPlaceholder: "@yourID",
+        roleLabel: "الدور المفضل",
+        selectRole: "اختر دورك",
+        supporterRole: "الداعم",
+        developerRole: "المطور",
+        ambassadorRole: "السفير",
+        investorRole: "المستثمر",
+        registerNow: "سجل الآن",
+        homeTab: "الصفحة الرئيسية",
+        supportTab: "الدعم",
+        roadmapTab: "خارطة الطريق",
+        voteTab: "التصويت",
+        registerTab: "التسجيل"
+      },
+      
+	    de: {
+    aboutBtn: "Über BillByte ($BBY)",
+    about1: "ist ein einzigartiges Krypto-Projekt, das Papiergeld (Bill) und Bytes (digitale Einheit) vereint.",
+    about2: "Es verbindet den wahrgenommenen Wert von Bargeld mit der Macht des Digitalen, um eine dezentralisierte, einfache und gemeinschaftsgetriebene Währung zu schaffen.",
+    goal: "Ziel:",
+    about3: "Physischen und digitalen Reichtum in einem fließenden Ökosystem für alle zugänglich machen.",
+    expectationBtn: "Erwartungen",
+    vision: "Globale Vision:",
+    visionText: "BillByte ($BBY) strebt danach, Menschen weltweit mit zugänglichem digitalem Reichtum zu verbinden, wobei der symbolische Wert von physischem Bargeld respektiert wird.",
+    community: "Community:",
+    communityText: "Dieses Projekt ist im Kern gemeinschaftsgetrieben. Wichtige Entscheidungen werden von $BBY-Inhabern geleitet - nicht von einer zentralisierten Elite.",
+    future: "DeFi-Zukunft:",
+    futureText: "BillByte bereitet sich auf die Integration mit dezentralen Ökosystemen, Web3-Mini-Apps und Blockchain-Brücken für eine massive und flüssige Adoption vor.",
+    supportBtn: "Projekt unterstützen",
+    telegramBtn: "Treten Sie uns auf Telegram bei",
+    miningText: "BBY wird abgebaut... KI-Hashrate: Matrix Stabil",
+    fuelText: "Angetrieben durch Glauben, nicht durch Strom.",
+    becomeSupporter: "Werden Sie offizieller Unterstützer",
+    supportText1: "Durch die Unterstützung von BillByte tragen Sie zur Schaffung eines revolutionären Finanzökosystems bei, das Physisches und Digitales vereint.",
+    supportText2: "Ihre Unterstützung ermöglicht es uns, innovative Lösungen zu entwickeln, die für alle zugänglich sind.",
+    bronze: "Bronze-Unterstützer",
+    bronzeBenefit1: "Früher Zugang zu Funktionen",
+    bronzeBenefit2: "Digitales Abzeichen in der Community",
+    silver: "Silber-Unterstützer",
+    silverBenefit1: "Alle Bronze-Vorteile",
+    silverBenefit2: "VIP-Zugang zu Veranstaltungen",
+    silverBenefit3: "Vorrangige Abstimmung bei Entscheidungen",
+    gold: "Gold-Unterstützer",
+    goldBenefit1: "Alle Silber-Vorteile",
+    goldBenefit2: "Zugang zu Kernentwicklern",
+    goldBenefit3: "Teilnahme an privaten Betas",
+    supportNow: "Jetzt unterstützen",
+    ourRoadmap: "Unser Fahrplan",
+    roadmapDesc: "Entdecken Sie die geplante Entwicklung von BillByte und die nächsten Schritte in unserer Entwicklung.",
+    phase1: "Phase 1: Konzeption (Abgeschlossen)",
+    phase1Desc: "Entwicklung des Grundkonzepts und Aufbau der ersten Community.",
+    phase2: "Phase 2: Prototyp (Abgeschlossen)",
+    phase2Desc: "Erstellung der ersten Wallet und Implementierung des Mining-Mechanismus.",
+    phase3: "Phase 3: Start (In Bearbeitung)",
+    phase3Desc: "Start der Alpha-Version und Integration mit Telegram.",
+    phase4: "Phase 4: Ökosystem",
+    phase4Desc: "Entwicklung von Brücken zu bestehenden Blockchains und Schaffung erster Anwendungsfälle.",
+    phase5: "Phase 5: Globale Expansion",
+    phase5Desc: "Internationale Verbreitung und Integration mit traditionellen Finanzsystemen.",
+    communityVote: "Community-Abstimmung",
+    voteDesc: "Als Mitglied der BillByte-Community zählt Ihre Stimme! Beteiligen Sie sich an Entscheidungen, die die Zukunft unseres Ökosystems gestalten werden.",
+    activeProposals: "Aktive Vorschläge",
+    proposal1: "Binance Smart Chain Integration",
+    proposal1Desc: "Sollen wir eine Brücke zur BSC schaffen, um den Austausch zu erleichtern?",
+    proposal2: "Belohnungsprogramm",
+    proposal2Desc: "Einrichtung eines Belohnungssystems für aktive Unterstützer.",
+    proposal3: "Neues Interface-Design",
+    proposal3Desc: "Übernahme des neuen Interfaces, das von unserem Designteam vorgeschlagen wurde.",
+    forBtn: "Dafür",
+    againstBtn: "Dagegen",
+    joinCommunity: "Werden Sie Teil der BillByte-Community",
+    registerDesc: "Registrieren Sie sich, um offizielles Mitglied zu werden und an der Entwicklung unseres Ökosystems teilzunehmen.",
+    usernameLabel: "Benutzername",
+    usernamePlaceholder: "Ihr Spitzname",
+    emailLabel: "E-Mail",
+    emailPlaceholder: "ihre@email.com",
+    telegramLabel: "Telegram-ID",
+    telegramPlaceholder: "@IhreID",
+    roleLabel: "Bevorzugte Rolle",
+    selectRole: "Wählen Sie Ihre Rolle",
+    supporterRole: "Unterstützer",
+    developerRole: "Entwickler",
+    ambassadorRole: "Botschafter",
+    investorRole: "Investor",
+    registerNow: "Jetzt registrieren",
+    homeTab: "Startseite",
+    supportTab: "Unterstützung",
+    roadmapTab: "Fahrplan",
+    voteTab: "Abstimmung",
+    registerTab: "Registrierung"
+  },
+  zh: {
+    aboutBtn: "关于 BillByte ($BBY)",
+    about1: "是一个独特的加密项目，将纸币(bill)和字节(数字单位)结合在一起。",
+    about2: "它将现金的感知价值与数字力量重新连接，创造一种去中心化、简单且由社区驱动的货币。",
+    goal: "目标：",
+    about3: "将物理和数字财富融合到一个流畅的生态系统中，让所有人都能访问。",
+    expectationBtn: "期望",
+    vision: "全球愿景：",
+    visionText: "BillByte ($BBY) 致力于将全球人民与可访问的数字财富连接起来，同时尊重实物现金的象征价值。",
+    community: "社区：",
+    communityText: "这个项目本质上是社区驱动的。重大决策将由 $BBY 持有者指导——而不是由中心化的精英团队。",
+    future: "DeFi 未来：",
+    futureText: "BillByte 正准备与去中心化生态系统、Web3 迷你应用和区块链桥接集成，以实现大规模流畅的采用。",
+    supportBtn: "支持项目",
+    telegramBtn: "加入我们的Telegram",
+    miningText: "挖矿 BBY... AI算力：矩阵稳定",
+    fuelText: "由信念驱动，而非电力。",
+    becomeSupporter: "成为官方支持者",
+    supportText1: "通过支持 BillByte，您正在帮助创建一个革命性的金融生态系统，融合物理和数字世界。",
+    supportText2: "您的支持使我们能够开发所有人都能使用的创新解决方案。",
+    bronze: "青铜支持者",
+    bronzeBenefit1: "早期访问功能",
+    bronzeBenefit2: "社区数字徽章",
+    silver: "白银支持者",
+    silverBenefit1: "所有青铜福利",
+    silverBenefit2: "VIP活动访问",
+    silverBenefit3: "决策优先投票权",
+    gold: "黄金支持者",
+    goldBenefit1: "所有白银福利",
+    goldBenefit2: "访问核心开发者",
+    goldBenefit3: "参与私人测试版",
+    supportNow: "立即支持",
+    ourRoadmap: "我们的路线图",
+    roadmapDesc: "了解 BillByte 的规划发展历程和我们开发中的下一步。",
+    phase1: "阶段1：构思(已完成)",
+    phase1Desc: "基础概念的开发和初始社区的创建。",
+    phase2: "阶段2：原型(已完成)",
+    phase2Desc: "创建第一个钱包并实施挖矿机制。",
+    phase3: "阶段3：启动(进行中)",
+    phase3Desc: "Alpha版本发布并与Telegram集成。",
+    phase4: "阶段4：生态系统",
+    phase4Desc: "与现有区块链的桥接开发和首批用例创建。",
+    phase5: "阶段5：全球扩展",
+    phase5Desc: "国际部署与传统金融系统集成。",
+    communityVote: "社区投票",
+    voteDesc: "作为BillByte社区成员，您的声音很重要！参与将塑造我们生态系统未来的决策。",
+    activeProposals: "活跃提案",
+    proposal1: "币安智能链集成",
+    proposal1Desc: "我们是否应该创建到BSC的桥接以促进交易？",
+    proposal2: "奖励计划",
+    proposal2Desc: "为活跃支持者创建奖励系统。",
+    proposal3: "新界面设计",
+    proposal3Desc: "采用我们设计团队提出的新界面。",
+    forBtn: "赞成",
+    againstBtn: "反对",
+    joinCommunity: "加入BillByte社区",
+    registerDesc: "注册成为正式成员并参与我们生态系统的开发。",
+    usernameLabel: "用户名",
+    usernamePlaceholder: "您的昵称",
+    emailLabel: "电子邮件",
+    emailPlaceholder: "your@email.com",
+    telegramLabel: "Telegram ID",
+    telegramPlaceholder: "@yourID",
+    roleLabel: "首选角色",
+    selectRole: "选择您的角色",
+    supporterRole: "支持者",
+    developerRole: "开发者",
+    ambassadorRole: "大使",
+    investorRole: "投资者",
+    registerNow: "立即注册",
+    homeTab: "首页",
+    supportTab: "支持",
+    roadmapTab: "路线图",
+    voteTab: "投票",
+    registerTab: "注册"
+  }
+};
+
+
+    // Current language
+    let currentLang = 'en';
+
+    // Function to update translations
+    function updateTranslations(lang) {
+      currentLang = lang;
+      const langData = translations[lang];
+      
+      // Update all elements with i18n class
+      document.querySelectorAll('.i18n').forEach(element => {
+        const key = element.getAttribute('data-key');
+        if (langData[key]) {
+          element.textContent = langData[key];
+        }
+      });
+      
+      // Update placeholders
+      document.querySelectorAll('input[data-placeholder-key]').forEach(input => {
+        const key = input.getAttribute('data-placeholder-key');
+        if (langData[key]) {
+          input.placeholder = langData[key];
+        }
+      });
+      
+      // Update language button text
+     const langName = lang === 'en' ? 'English' : 
+                lang === 'fr' ? 'Français' : 
+                lang === 'es' ? 'Español' :      
+                lang === 'ar' ? 'العربية' :
+                lang === 'de' ? 'Deutsch' :
+                lang === 'zh' ? '中文' : 'English';		  
+					  
+      document.getElementById('langBtn').innerHTML = `<i>🌐</i> ${langName}`;
+      
+      // Update active class in dropdown
+      document.querySelectorAll('.lang-option').forEach(option => {
+        option.classList.remove('active');
+        if (option.getAttribute('data-lang') === lang) {
+          option.classList.add('active');
+        }
+      });
+      
+      // Store selected language
+      localStorage.setItem('billbyte_lang', lang);
+      
+      // Update RTL for Arabic
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      
+      showToast(`Language changed to ${langName}`);
+    }
+
+    // Function to show toast notification
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <i>🌐</i>
+        <span>${message}</span>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Remove toast after animation
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
     let supporters = 124;
     let activeButton = null;
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Load saved language or default to English
+      const savedLang = localStorage.getItem('billbyte_lang') || 'en';
+      updateTranslations(savedLang);
+      
       // Set up button event listeners
       document.getElementById("supportBtn").addEventListener("click", supportProject);
       document.getElementById("telegramButton").addEventListener("click", openTelegram);
@@ -726,6 +1433,34 @@
       setInterval(() => {
         logo.classList.toggle('pulse');
       }, 3000);
+      
+      // Language selector functionality
+      const langBtn = document.getElementById('langBtn');
+      const langDropdown = document.getElementById('langDropdown');
+      
+      // Toggle dropdown visibility
+      langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
+          langDropdown.classList.remove('show');
+        }
+      });
+      
+      // Handle language selection
+      const langOptions = document.querySelectorAll('.lang-option');
+      langOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const lang = this.getAttribute('data-lang');
+          updateTranslations(lang);
+          langDropdown.classList.remove('show');
+        });
+      });
     });
 
     function supportProject() {
@@ -733,7 +1468,8 @@
       document.getElementById("supporters").textContent = supporters;
       
       const button = document.getElementById("supportBtn");
-      button.innerHTML = '<i>🎉</i> You\'re a proud BBY supporter!';
+      const langData = translations[currentLang];
+      button.innerHTML = `<i>🎉</i> ${langData['supportSuccess'] || "You're a proud BBY supporter!"}`;
       button.classList.add("active-btn");
       button.disabled = true;
       
@@ -749,49 +1485,57 @@
       window.open("https://t.me/billbytebot?start=welcome", "_blank");
     }
 
-    function toggleAbout() {
-      const about = document.getElementById("aboutText");
-      const expect = document.getElementById("expectationText");
-      const aboutBtn = document.getElementById("aboutBtn");
-      const expectBtn = document.getElementById("expectationBtn");
-      
-      resetButtons();
-      expect.style.display = 'none';
-      expectBtn.classList.remove("active-btn");
-      
-      if (about.style.display === 'none') {
-        about.style.display = 'block';
-        aboutBtn.classList.add("active-btn");
-      } else {
-        about.style.display = 'none';
-        aboutBtn.classList.remove("active-btn");
-      }
-    }
+function toggleAbout() {
+  const about = document.getElementById("aboutText");
+  const expect = document.getElementById("expectationText");
+  const aboutBtn = document.getElementById("aboutBtn");
+  const expectBtn = document.getElementById("expectationBtn");
 
-    function toggleExpectation() {
-      const about = document.getElementById("aboutText");
-      const expect = document.getElementById("expectationText");
-      const aboutBtn = document.getElementById("aboutBtn");
-      const expectBtn = document.getElementById("expectationBtn");
-      
-      resetButtons();
-      about.style.display = 'none';
-      aboutBtn.classList.remove("active-btn");
-      
-      if (expect.style.display === 'none') {
-        expect.style.display = 'block';
-        expectBtn.classList.add("active-btn");
-      } else {
-        expect.style.display = 'none';
-        expectBtn.classList.remove("active-btn");
-      }
+  resetButtons();
+
+  // Fermer l'autre texte s'il est ouvert
+  if (expect.classList.contains('open')) {
+    expect.classList.remove('open');
+    expectBtn.classList.remove("active-btn");
+  }
+
+  // Basculer l'état actuel
+  about.classList.toggle('open');
+  aboutBtn.classList.toggle("active-btn", about.classList.contains('open'));
+  
+  // Scroll vers le haut si ouvert
+  if (about.classList.contains('open')) {
+    about.scrollTop = 0;
+  }
+}
+
+    function toggleExpectation()  {
+  const about = document.getElementById("aboutText");
+  const expect = document.getElementById("expectationText");
+  const aboutBtn = document.getElementById("aboutBtn");
+  const expectBtn = document.getElementById("expectationBtn");
+
+  resetButtons();
+
+  if (about.classList.contains('open')) {
+    about.classList.remove('open');
+    aboutBtn.classList.remove("active-btn");
+  }
+
+  expect.classList.toggle('open');
+  if (expect.classList.contains('open')) {
+    expect.scrollTop = 0;
+    expectBtn.classList.add("active-btn");
+  } else {
+    expectBtn.classList.remove("active-btn");
+  }
     }
 
     function resetButtons() {
       const supportBtn = document.getElementById("supportBtn");
       if (!supportBtn.disabled) {
-        supportBtn.textContent = "🤝 Support the Project";
-        supportBtn.innerHTML = '<i>🤝</i> Support the Project';
+        const langData = translations[currentLang];
+        supportBtn.innerHTML = `<i>🤝</i> ${langData['supportBtn'] || "Support the Project"}`;
         supportBtn.classList.remove("active-btn");
         supportBtn.disabled = false;
       }
